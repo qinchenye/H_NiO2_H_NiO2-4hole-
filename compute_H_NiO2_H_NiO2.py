@@ -30,7 +30,9 @@ M_PI = math.pi
                   
 #####################################
 def compute_Aw_main(A,ep,tpd,tpp,pds,pdp,pps,ppp,tNiH,tpH,Upp,\
-                    d_double, p_double, double_part, idx, hole3_part, U, S_val, Sz_val, AorB_sym): 
+                    d_000_double,d_200_double, p_double, double_000_part, idx_000, hole34_000_part,\
+                    double_200_part, idx_200, hole34_200_part,\
+                    U_000,S_000_val, Sz_000_val,U_200,S_200_val, Sz_200_val,  AorB_000_sym, AorB_200_sym): 
     if Norb==8:
         fname = 'ep'+str(ep)+'_eH'+str(pam.eH)+'_tpd'+str(tpd)+'_tpp'+str(tpp) \
                   +'_tNiH'+str(tNiH)+'_tpH'+str(tpH)+'_Mc'+str(Mc)+'_Norb'+str(Norb)+'_eta'+str(eta)
@@ -69,60 +71,66 @@ def compute_Aw_main(A,ep,tpd,tpp,pds,pdp,pps,ppp,tNiH,tpH,Upp,\
     and assign the interaction matrix
     '''
     if pam.if_H0_rotate_byU==1:
-        H0_new = U_d.dot(H0.dot(U))
+        H0_000_new = U_000_d.dot(H0.dot(U_000))  
     
     clf()
 
     if Norb==8 or Norb==10 or Norb==11 or Norb==12:     
-        Hint = ham.create_interaction_matrix_ALL_syms(VS,d_double,p_double, double_part, idx, hole3_part, \
-                                                      S_val, Sz_val,AorB_sym,A,Upp)
+        Hint_000 = ham.create_interaction_matrix_ALL_syms(VS,d_000_double,p_double,double_000_part, idx_000, hole34_000_part,\
+                                                      S_000_val, Sz_000_val,AorB_000_sym, A, Upp)
+        Hint_200 = ham.create_interaction_matrix_ALL_syms(VS,d_200_double,p_double,double_200_part, idx_200, hole34_200_part,\
+                                                      S_200_val, Sz_200_val,AorB_200_sym, A, Upp)     
         if pam.if_H0_rotate_byU==1:
-            H = H0_new + Hint
+            H_000 = H0_000_new + Hint_000
+            
+            # continue rotate the basis for setting Cu layer's interaction (d_Cu_double)
+            H0_200_new = U_200_d.dot(H_000.dot(U_200)) 
+            H = H0_000_new + Hint_000
         else:
-            H = H0 + Hint  
+            H = H0 + Hint_200 + Hint_000
         H.tocsr()
 
         ####################################################################################
         # compute GS only for turning on full interactions
         if pam.if_get_ground_state==1:
-            vals = gs.get_ground_state(H, VS, S_val,Sz_val)
-            if Norb==8:
-                util.write_GS('Egs_'+flowpeak+'.txt',A,ep,tpd,vals[0])
-                #util.write_GS_components('GS_weights_'+flowpeak+'.txt',A,ep,tpd,wgt_d8, wgt_d9L, wgt_d10L2)
-            elif Norb==10 or Norb==11 or Norb==12:
-                util.write_GS2('Egs_'+flowpeak+'.txt',A,ep,pds,pdp,vals[0])
-                #util.write_GS_components2('GS_weights_'+flowpeak+'.txt',A,ep,pds,pdp,wgt_d8, wgt_d9L, wgt_d10L2)
+            vals = gs.get_ground_state(H, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val)
+#             if Norb==8:
+#                 util.write_GS('Egs_'+flowpeak+'.txt',A,ep,tpd,vals[0])
+#                 #util.write_GS_components('GS_weights_'+flowpeak+'.txt',A,ep,tpd,wgt_d8, wgt_d9L, wgt_d10L2)
+#             elif Norb==10 or Norb==11 or Norb==12:
+#                 util.write_GS2('Egs_'+flowpeak+'.txt',A,ep,pds,pdp,vals[0])
+#                 #util.write_GS_components2('GS_weights_'+flowpeak+'.txt',A,ep,pds,pdp,wgt_d8, wgt_d9L, wgt_d10L2)
             
         #########################################################################
         '''
         Compute A(w) for various states
         '''
-        if pam.if_compute_Aw==1:
-            # compute d8
-            fig.compute_Aw_d8_sym(H, VS, d_double_no_eh, S_val, Sz_val, AorB_sym, A, w_vals, "Aw_d8_sym_", fname)
+#         if pam.if_compute_Aw==1:
+#             # compute d8
+#             fig.compute_Aw_d8_sym(H, VS, d_double_no_eh, S_val, Sz_val, AorB_sym, A, w_vals, "Aw_d8_sym_", fname)
 
-            # compute d9L
-            b1L_state_indices, a1L_state_indices, b1L_state_labels, a1L_state_labels \
-                    = getstate.get_d9L_state_indices(VS, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, b1L_state_indices, b1L_state_labels, "Aw_b1L_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1L_state_indices, a1L_state_labels, "Aw_a1L_", fname)
+#             # compute d9L
+#             b1L_state_indices, a1L_state_indices, b1L_state_labels, a1L_state_labels \
+#                     = getstate.get_d9L_state_indices(VS, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, b1L_state_indices, b1L_state_labels, "Aw_b1L_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1L_state_indices, a1L_state_labels, "Aw_a1L_", fname)
 
-            # compute d10L2
-            d10L2_state_indices, d10L2_state_labels = getstate.get_d10L2_state_indices(VS, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, d10L2_state_indices, d10L2_state_labels, "Aw_d10L2_", fname)
+#             # compute d10L2
+#             d10L2_state_indices, d10L2_state_labels = getstate.get_d10L2_state_indices(VS, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, d10L2_state_indices, d10L2_state_labels, "Aw_d10L2_", fname)
 
-            # compute d8Ls for some special states
-            a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, \
-            a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, \
-            a1a1Ls_state_indices, a1a1Ls_state_labels \
-                                            = getstate.get_d8Ls_state_indices(VS, d_double_one_eh, S_val, Sz_val)
-            fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, "Aw_a1b1Ls_S0_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, "Aw_a1b1Ls_S1_", fname)
-            fig.compute_Aw1(H, VS, w_vals, a1a1Ls_state_indices, a1a1Ls_state_labels, "Aw_a1a1Ls_", fname)
+#             # compute d8Ls for some special states
+#             a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, \
+#             a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, \
+#             a1a1Ls_state_indices, a1a1Ls_state_labels \
+#                                             = getstate.get_d8Ls_state_indices(VS, d_double_one_eh, S_val, Sz_val)
+#             fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S0_state_indices, a1b1Ls_S0_state_labels, "Aw_a1b1Ls_S0_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1b1Ls_S1_state_indices, a1b1Ls_S1_state_labels, "Aw_a1b1Ls_S1_", fname)
+#             fig.compute_Aw1(H, VS, w_vals, a1a1Ls_state_indices, a1a1Ls_state_labels, "Aw_a1a1Ls_", fname)
 
-            # compute d9L2s
-            d9L2s_state_indices, d9L2s_state_labels = getstate.get_d9L2s_state_indices(VS)
-            fig.compute_Aw1(H, VS, w_vals, d9L2s_state_indices, d9L2s_state_labels, "Aw_d9L2s_", fname)
+#             # compute d9L2s
+#             d9L2s_state_indices, d9L2s_state_labels = getstate.get_d9L2s_state_indices(VS)
+#             fig.compute_Aw1(H, VS, w_vals, d9L2s_state_indices, d9L2s_state_labels, "Aw_d9L2s_", fname)
         
     
 ##########################################################################
@@ -143,19 +151,28 @@ if __name__ == '__main__':
     # set up VS
     VS = vs.VariationalSpace(Mc)
     
-    d_double, p_double, double_part, idx, hole3_part = ham.get_double_occu_list(VS)
+    d_000_double, idx_000, hole34_000_part,  double_000_part, \
+    d_200_double, idx_200, hole34_200_part,  double_200_part, \
+    p_double = ham.get_double_occu_list(VS)
+    
     
     # change the basis for d_double states to be singlet/triplet
     if pam.basis_change_type=='all_states':
         U, S_val, Sz_val, AorB_sym = basis.create_singlet_triplet_basis_change_matrix(VS, \
-                                            d_double, double_part, idx, hole3_part)
+                                            d_double, double_part, idx, hole34_part)
         if pam.if_print_VS_after_basis_change==1:
             basis.print_VS_after_basis_change(VS,S_val,Sz_val)
     elif pam.basis_change_type=='d_double':
-        U, S_val, Sz_val, AorB_sym = basis.create_singlet_triplet_basis_change_matrix_d_double(VS, \
-                                            d_double, double_part, idx, hole3_part)
+        U_000,S_000_val, Sz_000_val, AorB_000_sym,\
+                                        =  basis.create_singlet_triplet_basis_change_matrix_d_double\
+                                        (VS, d_000_double,double_000_part, idx_000, hole34_000_part)
+        U_200,S_200_val, Sz_200_val, AorB_200_sym,\
+                                        =  basis.create_singlet_triplet_basis_change_matrix_d_double\
+                                        (VS, d_200_double,double_200_part, idx_200, hole34_200_part)
 
-    U_d = (U.conjugate()).transpose()
+
+    U_000_d = (U_000.conjugate()).transpose()
+    U_200_d = (U_200.conjugate()).transpose()   
     # check if U if unitary
     #checkU_unitary(U,U_d)
     
@@ -171,8 +188,9 @@ if __name__ == '__main__':
                                 print ('A=',A, 'eH=', eH, 'ep=', ep, ' tpd=',tpd,' tpp=',tpp,\
                                       ' tNiH=',tNiH,' tpH=',tpH,' Upp=',Upp) 
                                 compute_Aw_main(A,ep,tpd,tpp,0,0,0,0,tNiH,tpH,Upp,\
-                                                d_double, p_double, double_part, idx, hole3_part, \
-                                                U, S_val, Sz_val, AorB_sym)
+                                            d_000_double, d_200_double, p_double, double_000_part, idx_000, hole34_000_part,\
+                                            double_200_part, idx_200, hole34_200_part, \
+                                            U_000,S_000_val, Sz_000_val,U_200,S_200_val, Sz_200_val, AorB_000_sym, AorB_200_sym)
     elif Norb==10 or Norb==11 or Norb==12:
         pps = pam.pps
         ppp = pam.ppp

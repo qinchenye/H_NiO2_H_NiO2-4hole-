@@ -82,7 +82,7 @@ def get_statistic_2orb(o1,o2):
     
     return nNi, nO, dorbs, porbs
 
-def get_statistic_3orb(o1,o2,o3,x1,x2,x3):
+def get_statistic_4orb(o1,o2,o3,o4,x1,x2,x3,x4):
     '''
     Get how many orbs are on Ni, O, H separately
     and write info into dorbs and porbs
@@ -112,12 +112,57 @@ def get_statistic_3orb(o1,o2,o3,x1,x2,x3):
     elif o3 in pam.H_orbs:
         nH += 1; Horbs.append(o3)
         
+    if o4 in pam.Ni_orbs:
+        nNi += 1; dorbs.append(o4); dxs.append(x4)
+    elif o4 in pam.O_orbs:
+        nO += 1; porbs.append(o4)
+    elif o4 in pam.H_orbs:
+        nH += 1; Horbs.append(o4)        
+        
+        
     assert(nNi==len(dorbs))
     assert(nO ==len(porbs))
     assert(nH ==len(Horbs))
-    assert(nNi+nO+nH==3)
+    assert(nNi+nO+nH==4)
     
     return nNi, nO, nH, dorbs, dxs, porbs, Horbs
+
+
+def get_double_append(i,n,s1,o1,x1,y1,z1,s2,o2,x2,y2,z2,s3,o3,x3,y3,z3,s4,o4,x4,y4,z4,\
+                      d_list,p_list,idx,hole34_part, double_part): 
+    if o1 in pam.Ni_orbs and o2 in pam.Ni_orbs: #and not (o3 in pam.Ni_Cu_orbs and o4 in pam.Ni_Cu_orbs):
+        d_list.append(i)
+        idx.append(n); hole34_part.append([s3, o3, x3, y3, z3,s4, o4, x4, y4, z4])
+        double_part.append([s1,o1,x1,y1,z1,s2,o2,x2,y2,z2])
+    elif o1 in pam.O_orbs and o2 in pam.O_orbs:
+        p_list.append(i)
+
+
+def lamlist(l1, l2, l3,l4):
+    '''
+    reduce the 'for' circulation
+    '''        
+    funs = []
+    for i in l1: 
+        for j in l2: 
+            for k in l3:
+                for h in l4:                
+                    x = lambda i=i, j=j, k=k, h=h: (i,j,k,h)
+                    funs.append(x)
+
+    return funs
+       
+def lamlist1(l1, l2):
+    '''
+    reduce the 'for' circulation
+    '''     
+    funs = []
+    for i in l1: 
+        for j in l2: 
+            x = lambda i=i, j=j: (i,j)
+            funs.append(x)
+
+    return funs         
 
 def oppo_spin(s1):
     if s1=='up':

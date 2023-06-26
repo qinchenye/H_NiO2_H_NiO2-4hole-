@@ -5,7 +5,7 @@ import numpy as np
 import scipy.sparse as sps
 import parameters as pam
 
-def find_singlet_triplet_partner_d_double(VS, d_part, index, h3_part):
+def find_singlet_triplet_partner_d_double(VS, d_part, index, h34_part):
     '''
     For a given state find its partner state to form a singlet/triplet.
     Right now only applied for d_double states
@@ -17,17 +17,23 @@ def find_singlet_triplet_partner_d_double(VS, d_part, index, h3_part):
     index: index of the singlet/triplet partner state in the VS
     phase: phase factor with which the partner state needs to be multiplied.
     '''
-    if index==1:
-        slabel = h3_part + ['up']+d_part[6:10] + ['dn']+d_part[1:5]
-    elif index==2:
-        slabel = ['up']+d_part[6:10] + h3_part + ['dn']+d_part[1:5]
-    elif index==3:
-        slabel = ['up']+d_part[6:10] + ['dn']+d_part[1:5] + h3_part 
+    if index==14:
+        slabel = h34_part[0:5] + [d_part[0]]+d_part[6:10] + [d_part[5]]+d_part[1:5] +h34_part[5:10]
+    elif index==24:
+        slabel = [d_part[0]]+d_part[6:10] + h34_part[0:5] + [d_part[5]]+d_part[1:5] +h34_part[5:10]
+    elif index==34:
+        slabel = [d_part[0]]+d_part[6:10] + [d_part[5]]+d_part[1:5] + h34_part[0:5] +h34_part[5:10]
+    elif index==13:
+        slabel = h34_part[0:5] + [d_part[0]]+d_part[6:10]+h34_part[5:10]  + [d_part[5]]+d_part[1:5]
+    elif index==23:
+        slabel = [d_part[0]]+d_part[6:10] + h34_part[0:5] +h34_part[5:10]  +[d_part[5]]+d_part[1:5]
+    elif index==12:
+        slabel = h34_part[0:5] +h34_part[5:10] +[d_part[0]]+d_part[6:10] +[d_part[5]]+d_part[1:5]      
                  
     #print('original state=', estate + ['up']+d_part[1:5] + ['dn']+d_part[6:10] + h3_part)
     
-    tmp_state = vs.create_three_hole_state(slabel)
-    partner_state,_ = vs.make_state_canonical(tmp_state)
+    tmp_state = vs.create_four_hole_state(slabel)
+    partner_state,_,_ = vs.make_state_canonical(tmp_state)
     phase = -1.0
     state_id = VS.get_index(partner_state)
     
@@ -50,10 +56,10 @@ def find_singlet_triplet_partner_d_double(VS, d_part, index, h3_part):
 #         print (VS.get_index(tstate))
 #         return
     
-    return state_id, phase
+    return state_id , phase
 
 
-def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_part, idx, hole3_part):
+def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_part, idx, hole34_part):
     '''
     Similar to above create_singlet_triplet_basis_change_matrix but only applies
     basis change for d_double states
@@ -86,6 +92,7 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_par
      
     #################################################################################
     for i, double_id in enumerate(d_double):
+
         s1 = double_part[i][0]
         o1 = double_part[i][1]
         s2 = double_part[i][5]
@@ -106,17 +113,23 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_par
 
         elif s1=='dn' and s2=='up':
             print ('Error: d_double cannot have states with s1=dn, s2=up !')
-            tstate = VS.get_state(VS.lookup_tbl[i])
+            tstate = VS.get_state(VS.lookup_tbl[double_id])
             ts1 = tstate['hole1_spin']
             ts2 = tstate['hole2_spin']
             ts3 = tstate['hole3_spin']
+            ts4 = tstate['hole4_spin'] 
+          
             torb1 = tstate['hole1_orb']
             torb2 = tstate['hole2_orb']
             torb3 = tstate['hole3_orb']
+            torb4 = tstate['hole4_orb'] 
+   
             tx1, ty1, tz1 = tstate['hole1_coord']
             tx2, ty2, tz2 = tstate['hole2_coord']
             tx3, ty3, tz3 = tstate['hole3_coord']
-            print ('Error state', i, ts1,torb1,tx1,ty1,ts2,torb2,tx2,ty2,ts3,torb3,tx3,ty3)
+            tx4, ty4, tz4 = tstate['hole4_coord']   
+          
+            print ('Error state', double_id,ts1,torb1,tx1,ty1,tz1,ts2,torb2,tx2,ty2,tz2,ts3,torb3,tx3,ty3,tz3,ts4,torb4,tx4,ty4,tz4)
             break
 
         elif s1=='up' and s2=='dn':
@@ -131,15 +144,21 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_par
                     
                 elif o1=='dxz':  # no need to consider e2='dyz' case
                     # generate paired e2e2 state:
-                    if idx[i]==3:
-                        slabel = [s1,'dyz']+dpos + [s2,'dyz']+dpos + hole3_part[i]
-                    elif idx[i]==2:
-                        slabel = [s1,'dyz']+dpos + hole3_part[i] + [s2,'dyz']+dpos 
-                    elif idx[i]==1:
-                        slabel = hole3_part[i] + [s1,'dyz']+dpos + [s2,'dyz']+dpos
+                    if idx[i]==34:
+                        slabel = [s1,'dyz']+dpos + [s2,'dyz']+dpos + hole34_part[i][0:5] + hole34_part[i][5:10]
+                    elif idx[i]==24:
+                        slabel = [s1,'dyz']+dpos + hole34_part[i][0:5] + [s2,'dyz']+dpos + hole34_part[i][5:10]
+                    elif idx[i]==14:
+                        slabel = hole34_part[i][0:5] + [s1,'dyz']+dpos + [s2,'dyz']+dpos + hole34_part[i][5:10]
+                    elif idx[i]==13:
+                        slabel = hole34_part[i][0:5] + [s1,'dyz']+dpos + hole34_part[i][5:10] + [s2,'dyz']+dpos 
+                    elif idx[i]==23:
+                        slabel = [s1,'dyz']+dpos + hole34_part[i][0:5] + hole34_part[i][5:10] + [s2,'dyz']+dpos 
+                    elif idx[i]==12:
+                        slabel = hole34_part[i][0:5] + hole34_part[i][5:10] + [s1,'dyz']+dpos + [s2,'dyz']+dpos                         
                         
-                    tmp_state = vs.create_three_hole_state(slabel)
-                    new_state,_ = vs.make_state_canonical(tmp_state)
+                    tmp_state = vs.create_four_hole_state(slabel)
+                    new_state,_,_ = vs.make_state_canonical(tmp_state)
                     e2 = VS.get_index(new_state)
                         
                     data.append(1.0);  row.append(double_id);  col.append(double_id)
@@ -156,7 +175,9 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_par
                     count_singlet += 1
 
             else:
+                
                 if double_id not in count_list:
+                    j, ph = find_singlet_triplet_partner_d_double(VS, double_part[i], idx[i], hole34_part[i])                    
                     # debug:
 #                     tstate = VS.get_state(VS.lookup_tbl[double_id])
 #                     tse = tstate['e_spin']
@@ -176,7 +197,7 @@ def create_singlet_triplet_basis_change_matrix_d_double(VS, d_double, double_par
                     
 #                     print('estate=',estate)
                     
-                    j, ph = find_singlet_triplet_partner_d_double(VS, double_part[i], idx[i], hole3_part[i])
+
 
                     # append matrix elements for singlet states
                     # convention: original state col i stores singlet and 

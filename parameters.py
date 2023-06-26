@@ -2,7 +2,7 @@ import math
 import numpy as np
 M_PI = math.pi
 
-Mc = 6
+Mc = 4
 
 # Note that Ni-d and O-p orbitals use hole language
 # while Nd orbs use electron language
@@ -49,7 +49,7 @@ if Norb==4 or Norb==8:
     #tpds = [0.01]
     tpps = [0.5]
     #tNiH = 1.63
-    tNiHs = np.linspace(0.0, 3.6, num=19, endpoint=True)
+    tNiHs = np.linspace(0, 4.5, num=4, endpoint=True)
     #tNiHs = [0.001]
     tpH  = 0.58
 elif Norb==10 or Norb==12:    
