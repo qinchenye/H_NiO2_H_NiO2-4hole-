@@ -123,7 +123,7 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
     
     # in case eigsh works:
     Neval = pam.Neval
-    vals, vecs = sps.linalg.eigsh(matrix, k=Neval, which='SA')
+    vals, vecs = sps.linalg.eigsh(matrix, k=15, which='SA')
     vals.sort()
     print ('lowest eigenvalue of H from np.linalg.eigsh = ')
     print (vals)
@@ -131,7 +131,7 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
     print("---get_ground_state_eigsh %s seconds ---" % (time.time() - t1))
     
     # get state components in GS and another 9 higher states; note that indices is a tuple
-    for k in range(0,1):
+    for k in range(0,3):
         #if vals[k]<pam.w_start or vals[k]>pam.w_stop:
         #if vals[k]<11.5 or vals[k]>14.5:
         #if k<Neval:
@@ -149,8 +149,8 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
         wgt_d8d8 = np.zeros(20)
         wgt_d9Ld8 = np.zeros(20)  
         wgt_d8d9L = np.zeros(20)          
-#         wgt_d9Ld9L = np.zeros(20) 
-#         wgt_d9L2d9 = np.zeros(20)         
+        wgt_d8Ld9 = np.zeros(20) 
+        wgt_d9d8L = np.zeros(20)         
         wgt_d9d9L2 = np.zeros(20)           
         wgt_d9d10L3 = np.zeros(20)   
 #         wgt_d10L2d9L = np.zeros(20)             
@@ -218,42 +218,81 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
                     wgt_d8d8[0] += weight
                     if orb1=='dx2y2' and  orb2=='dx2y2'  and  orb3=='dx2y2' and  orb4=='dx2y2':
                         wgt_d8d8[1] += weight
-                        if S12==0:
-                            wgt_d8d8[4] += weight
+                        if S_000_12==0:
+                            wgt_d8d8[5] += weight
+                        if S_000_12==1:
+                            wgt_d8d8[6] += weight                            
                     if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='dx2y2' and orb4=='dx2y2':
-                        wgt_d8d8[2] += weight          
-                        if S12==1:
-                            wgt_d8d8[5] += weight                        
+                        wgt_d8d8[2] += weight                              
                     if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='d3z2r2'and orb4=='dx2y2':
                         wgt_d8d8[3] += weight
-                        if S12==1:
-                            wgt_d8d8[6] += weight                           
+                    if orb1=='d3z2r2' and  orb2=='d3z2r2'  and  orb3=='dx2y2'and orb4=='dx2y2':
+                        wgt_d8d8[4] += weight
+
+
                         
                 if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.Ni_orbs and orb4 in pam.O_orbs and x1==0 and x2==x3==2 and ((x4==1 and y4==0) or (x4==-1 and y4==0) or (x4==0 and y4==-1) or (x4==0 and y4==1)):
                     wgt_d9Ld8[0] += weight
                     if orb1=='dx2y2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
                         wgt_d9Ld8[1] += weight
-                        if S12==0:
+                        if S_200_12==0:
                             wgt_d9Ld8[4] += weight 
                     if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
                         wgt_d9Ld8[2] += weight          
-                        if S12==1:
+                        if S_200_12==1:
                             wgt_d9Ld8[5] += weight                             
                     if orb1=='d3z2r2' and  orb2=='d3z2r2'  and  orb3=='dx2y2':
                         wgt_d9Ld8[3] += weight          
-                        if S12==0:
+                        if S_200_12==0:
                             wgt_d9Ld8[6] += weight      
                             
                 if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.Ni_orbs and orb4 in pam.O_orbs and x1==x2==0 and x3==2 and ((x4==1 and y4==0) or (x4==-1 and y4==0) or (x4==0 and y4==-1) or (x4==0 and y4==1)):
+                    wgt_d8Ld9[0] += weight                            
+                    if orb1=='dx2y2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d8Ld9[1] += weight
+                        if S_000_12==0:
+                            wgt_d8Ld9[4] += weight                         
+                    if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d8Ld9[2] += weight  
+                        if S_000_12==0:
+                            wgt_d8Ld9[5] += weight                         
+                    if orb1=='d3z2r2' and  orb2=='d3z2r2'  and  orb3=='dx2y2':
+                        wgt_d8Ld9[3] += weight  
+                        if S_000_12==0:
+                            wgt_d8Ld9[6] += weight                         
+                        
+                if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.Ni_orbs and orb4 in pam.O_orbs and x1==x2==0 and x3==2 and ((x4==3 and y4==0)  or (x4==2 and y4==-1) or (x4==2 and y4==1)):
                     wgt_d8d9L[0] += weight                            
-#                     if orb1=='dx2y2' and  orb2=='dx2y2':
-#                         wgt_d9Ld9[1] += weight
-#                     if orb1=='d3z2r2' and  orb2=='dx2y2':
-#                         wgt_d9Ld9[2] += weight
-#                     if orb1=='dx2y2' and  orb2=='d3z2r2':
-#                         wgt_d9Ld9[3] += weight
-#                     if orb1=='d3z2r2' and  orb2=='d3z2r2':
-#                         wgt_d9Ld9[4] += weight      
+                    if orb1=='dx2y2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d8d9L[1] += weight
+                        if S_000_12==0:
+                            wgt_d8d9L[4] += weight                          
+                    if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d8d9L[2] += weight   
+                        if S_000_12==0:
+                            wgt_d8d9L[5] += weight                          
+                    if orb1=='d3z2r2' and  orb2=='d3z2r2'  and  orb3=='dx2y2':
+                        wgt_d8d9L[3] += weight    
+                        if S_000_12==0:
+                            wgt_d8d9L[6] += weight                          
+                        
+                if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.Ni_orbs and orb4 in pam.O_orbs and x1==0 and x2==x3==2 and ((x4==3 and y4==0)  or (x4==2 and y4==-1) or (x4==2 and y4==1)):
+                    wgt_d9d8L[0] += weight                            
+                    if orb1=='dx2y2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d9d8L[1] += weight
+                        if S_200_12==0:
+                            wgt_d9d8L[4] += weight                           
+                    if orb1=='d3z2r2' and  orb2=='dx2y2'  and  orb3=='dx2y2':
+                        wgt_d9d8L[2] += weight  
+                        if S_200_12==0:
+                            wgt_d9d8L[5] += weight                           
+                    if orb1=='d3z2r2' and  orb2=='d3z2r2'  and  orb3=='dx2y2':
+                        wgt_d9d8L[3] += weight                           
+                        if S_200_12==0:
+                            wgt_d9d8L[6] += weight                           
+                    
+                    
+                    
      
                 if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.O_orbs and orb4 in pam.O_orbs and x1==0 and x2==2:
                     wgt_d9d9L2[0] += weight   
@@ -329,7 +368,20 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
                     wgt_ddHH[0] += weight           
                     
                 if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.Ni_orbs and orb4 in pam.H_orbs:
-                    wgt_dddH[0] += weight                       
+                    wgt_dddH[0] += weight    
+                    if x1==x2==0 and x3==2:
+                        wgt_dddH[1] += weight  
+                        if orb1=='d3z2r2' and orb2=='dx2y2' and orb3=='dx2y2':
+                            wgt_dddH[3] += weight 
+                        if orb1=='dx2y2' and orb2=='dx2y2' and orb3=='dx2y2':
+                            wgt_dddH[4] += weight                         
+                    if x1==0 and x2==x3==2:
+                        wgt_dddH[2] += weight                      
+                        if orb1=='d3z2r2' and orb2=='dx2y2' and orb3=='dx2y2':
+                            wgt_dddH[5] += weight 
+                        if orb1=='dx2y2' and orb2=='dx2y2' and orb3=='dx2y2':
+                            wgt_dddH[6] += weight                         
+                    
                     
                 if orb1 in pam.Ni_orbs and orb2 in pam.Ni_orbs and orb3 in pam.H_orbs and orb4 in pam.O_orbs:
                     wgt_ddHL[0] += weight
@@ -424,13 +476,13 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
         txt=open('./data/wgt_d8d8_a1b1_a1b1','a')                                  
         txt.write(str(wgt_d8d8[3])+'\n')
         txt.close()              
-        txt=open('./data/wgt_d8d8_b1b1_b1b1_0','a')                                  
+        txt=open('./data/wgt_d8d8_a1a1_b1b1','a')                                  
         txt.write(str(wgt_d8d8[4])+'\n')
         txt.close()  
-        txt=open('./data/wgt_d8d8_a1b1_b1b1_1','a')                                  
+        txt=open('./data/wgt_d8d8_b1b1_b1b1_0','a')                                  
         txt.write(str(wgt_d8d8[5])+'\n')
         txt.close()         
-        txt=open('./data/wgt_d8d8_a1b1_a1b1_1','a')                                  
+        txt=open('./data/wgt_d8d8_b1b1_b1b1_1','a')                                  
         txt.write(str(wgt_d8d8[6])+'\n')
         txt.close()          
         
@@ -460,7 +512,75 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
 
         txt=open('./data/wgt_d8d9L','a')                                  
         txt.write(str(wgt_d8d9L[0])+'\n')
-        txt.close()        
+        txt.close()    
+        txt=open('./data/wgt_d8d9L_b1b1_b1','a')                                  
+        txt.write(str(wgt_d8d9L[1])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8d9L_a1b1_b1','a')                                  
+        txt.write(str(wgt_d8d9L[2])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d8d9L_a1a1_b1','a')                                  
+        txt.write(str(wgt_d8d9L[3])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8d9L_b1b1_b1_0','a')                                  
+        txt.write(str(wgt_d8d9L[4])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8d9L_a1b1_b1_0','a')                                  
+        txt.write(str(wgt_d8d9L[5])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d8d9L_a1a1_b1_0','a')                                  
+        txt.write(str(wgt_d8d9L[6])+'\n')
+        txt.close()                   
+        
+        
+        
+        txt=open('./data/wgt_d8Ld9','a')                                  
+        txt.write(str(wgt_d8Ld9[0])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d8Ld9_b1b1_b1','a')                                  
+        txt.write(str(wgt_d8Ld9[1])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8Ld9_a1b1_b1','a')                                  
+        txt.write(str(wgt_d8Ld9[2])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d8Ld9_a1a1_b1','a')                                  
+        txt.write(str(wgt_d8Ld9[3])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8Ld9_b1b1_b1_0','a')                                  
+        txt.write(str(wgt_d8Ld9[4])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d8Ld9_a1b1_b1_0','a')                                  
+        txt.write(str(wgt_d8Ld9[5])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d8Ld9_a1a1_b1_0','a')                                  
+        txt.write(str(wgt_d8Ld9[6])+'\n')
+        txt.close()               
+        
+        
+        
+        txt=open('./data/wgt_d9d8L','a')                                  
+        txt.write(str(wgt_d9d8L[0])+'\n')
+        txt.close()           
+        txt=open('./data/wgt_d9d8L_b1_b1b1','a')                                  
+        txt.write(str(wgt_d9d8L[1])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d9d8L_a1_b1b1','a')                                  
+        txt.write(str(wgt_d9d8L[2])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d9d8L_a1_a1b1','a')                                  
+        txt.write(str(wgt_d9d8L[3])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d9d8L_b1_b1b1_0','a')                                  
+        txt.write(str(wgt_d9d8L[4])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_d9d8L_a1_b1b1_0','a')                                  
+        txt.write(str(wgt_d9d8L[5])+'\n')
+        txt.close()   
+        txt=open('./data/wgt_d9d8L_a1_a1b1_0','a')                                  
+        txt.write(str(wgt_d9d8L[6])+'\n')
+        txt.close()                   
+        
+        
         
         txt=open('./data/wgt_d9d9L2_sum','a')                                  
         txt.write(str(wgt_d9d9L2[0])+'\n')
@@ -603,6 +723,27 @@ def get_ground_state(matrix, VS, S_000_val,Sz_000_val,S_200_val,Sz_200_val):
         txt.write(str(wgt_d[14])+'\n')
         txt.close()         
         
+        txt=open('./data/wgt_dddH','a')                                  
+        txt.write(str(wgt_dddH[0])+'\n')
+        txt.close()          
+        txt=open('./data/wgt_dddH_002','a')                                  
+        txt.write(str(wgt_dddH[1])+'\n')
+        txt.close() 
+        txt=open('./data/wgt_dddH_022','a')                                  
+        txt.write(str(wgt_dddH[2])+'\n')
+        txt.close()         
+        txt=open('./data/wgt_dddH_002_a1b1b1','a')                                  
+        txt.write(str(wgt_dddH[3])+'\n')
+        txt.close()         
+        txt=open('./data/wgt_dddH_002_b1b1b1','a')                                  
+        txt.write(str(wgt_dddH[4])+'\n')
+        txt.close()         
+        txt=open('./data/wgt_dddH_022_a1b1b1','a')                                  
+        txt.write(str(wgt_dddH[5])+'\n')
+        txt.close()         
+        txt=open('./data/wgt_dddH_022_b1b1b1','a')                                  
+        txt.write(str(wgt_dddH[6])+'\n')
+        txt.close()                 
         
         
         

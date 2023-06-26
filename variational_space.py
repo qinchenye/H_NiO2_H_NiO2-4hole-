@@ -258,15 +258,15 @@ def check_Pauli(slabel):
     else:
         return True
     
-def exist_d6_d7_state(o1,o2,o3,o4,z1,z2,z3,z4):
+def exist_d6_d7_state(o1,o2,o3,o4,x1,x2,x3,x4):
 
-    if o1 in pam.Ni_orbs  and o2 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and z1==z2==z3:
+    if o1 in pam.Ni_orbs  and o2 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and x1==x2==x3:
         return False 
-    elif o1 in pam.Ni_orbs  and o2 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and z1==z2==z4:
+    elif o1 in pam.Ni_orbs  and o2 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and x1==x2==x4:
         return False       
-    elif o1 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and z1==z3==z4:
+    elif o1 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and x1==x3==x4:
         return False 
-    elif o2 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and z2==z3==z4:
+    elif o2 in pam.Ni_orbs  and o3 in pam.Ni_orbs  and o4 in pam.Ni_orbs  and x2==x3==x4:
         return False     
     else:
         return True
@@ -396,7 +396,7 @@ class VariationalSpace:
 
                                                                 # neglect d7 state !!
                                                                 if not exist_d6_d7_state\
-                                                                     (orb1,orb2,orb3,orb4,uz,vz,tz,wz):
+                                                                     (orb1,orb2,orb3,orb4,ux,vx,tx,wx):
                                                                     continue 
 
                                                                 # consider Pauli principle
